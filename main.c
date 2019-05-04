@@ -27,7 +27,7 @@ int main()
    long i = 0;                /* Go through the data array. */
    int j = 0;                 /* Go through the z header word. */
    int m = 0;                 /* Go through the zHdr word. */
-   int p = 0;                 /* Go through the Z header length word. */
+   //int p = 0;                 /* Go through the Z header length word. */
    char chArry[TOTCHRS];      /* Store characters from a file. */
    char zHdr[ZHDRWDTH];       /* Holder for Z header with 12 characters. */
    int zHdrIndx;              /* Holder for z header index. */
@@ -37,8 +37,8 @@ int main()
    int i_pkts_not_done = 1;   /* Indicates if I packets are done for each Z packet. */
    long i_hdr_indx = 0;       /* I header index. */
    long sfid_indx = 0;        /* I header SFID index. */
-   int r = 0;                 /* Go through the I sfid word. */
-   char i_sfid[] = "ABCD";    /* This is a string. */
+   //int r = 0;                 /* Go through the I sfid word. */
+   //char i_sfid[] = "ABCD";    /* This is a string. */
    char *i_sfid_ptr;          /* I SFID char pointer */
    long i_dat_len_indx = 0;   /* I data length. */
    long i_dat_len = 0;        /* I data length. */
@@ -169,54 +169,9 @@ int main()
                /* If we have Tek. mso56 scope. */
                if(msoMtchCnt == 3){
                   printf("\nFile type is MSO56.\n");
-                  /* Check for CONF sfid. */
-                  if(chkConfSfid(i_sfid_ptr)){
-                     /* Save data to the CONF file. */
-                     i = saveChxDat(chArry, i_dat_indx, i_dat_len, confFptr, i);
-                     /* After filling up the data, i should be at i + i_dat_len. */
-                     printf("i after configuration: %d\n", i);
-                  }
-                  else{ /* If not MSO Config. data. */
-                     /* Check for CH1 sfid. */
-                     //if(chkCh1Sfid(i_sfid_ptr)){
-                     if(chkChxSfid(i_sfid_ptr, 1)){
-                        msoCh1Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch1.txt", "w");
-                        /* Save data to the Ch1 file. */
-                        /* After filling up the data, i should be at i + i_dat_len. */
-                        i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh1Fptr, i);
-                        printf("i after mso ch1: %d\n", i);
-                     } /* If mso ch1 data. */
-                     else{ /* If not mso ch1 data. */
-                        /* Check for CH2 sfid. */
-                        if(chkChxSfid(i_sfid_ptr, 2)){
-                           msoCh2Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch2.txt", "w");
-                           /* Save data to the Ch2 file. */
-                           /* After filling up the data, i should be at i + i_dat_len. */
-                           i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh2Fptr, i);
-                           printf("i, after mso ch2: %d\n", i);
-                        } /* If mso ch2 data. */
-                        else{ /* If not mso ch2 data. */
-                           /* Check for CH3 sfid. */
-                           if(chkChxSfid(i_sfid_ptr, 3)){
-                              msoCh3Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch3.txt", "w");
-                              /* Save data to the Ch3 file. */
-                              /* After filling up the data, i should be at i + i_dat_len. */
-                              i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh3Fptr, i);
-                              printf("i after mso ch3: %d\n", i);
-                           } /* If mso ch3 data. */
-                           else{ /* If not mso ch3 data. */
-                              /* Check for CH4 sfid. */
-                              if(chkChxSfid(i_sfid_ptr, 4)){
-                                 msoCh4Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch4.txt", "w");
-                                 /* Save data to the Ch4 file. */
-                                 /* After filling up the data, i should be at i + i_dat_len. */
-                                 i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh4Fptr, i);
-                                 printf("i after mso ch4: %d\n", i);
-                              } /* If mso ch4 data. */
-                           } /* If not mso ch3 data. */
-                        } /* If not mso ch2 data. */
-                     } /* If not mso ch1 data. */
-                  } /* If not MSO Config. file. */
+                  /* Check for the SFID type we have and return i. */
+                  /* Also save data if necessary. */
+                  i = chkSfid(i_sfid_ptr, chArry, i_dat_indx, i_dat_len, confFptr, msoCh1Fptr, msoCh2Fptr, msoCh3Fptr, msoCh4Fptr, i);
                } /* If we have Tek. mso56 scope. */
                msoMtchCnt =  0;  /* Need to reset. */
 
