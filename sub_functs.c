@@ -240,7 +240,7 @@ int chkChxSfid(char *i_sfid_ptr, int ch)
    int m;
    int msoChxCnt = 0;
    //char chnl[] = " CH1"; /* Use this as a switch. */
-   char *chnl;
+   char *chnl = "1234";
 
    switch(ch){
       case 1: chnl = CH1; /* Points to the constant so we can walk through it. */

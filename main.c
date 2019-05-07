@@ -37,13 +37,8 @@ int main()
    int first_i_hdr_flg = 1;   /* Indicates the first I header. */
    int i_pkts_not_done = 1;   /* Indicates if I packets are done for each Z packet. */
    long i_hdr_indx = 0;       /* I header index. */
-   long sfid_indx = 0;        /* I header SFID index. */
    //int r = 0;                 /* Go through the I sfid word. */
    //char i_sfid[] = "ABCD";    /* This is a string. */
-   char *i_sfid_ptr;          /* I SFID char pointer */
-   long i_dat_len_indx = 0;   /* I data length index. */
-   long i_dat_len = 0;        /* I data length. */
-   long i_dat_indx = 0;       /* I data index. */
    long tot_dat_bytes = 0;    /* Total data bytes for entire file. */
    const char MSO[] = "mso";  /* Tektronix mso56 oscilloscope file type. */
    int msoMtchCnt = 0;        /* Indicates file type is mso56 in counts. */
