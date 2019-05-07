@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "funct_header.h"
+#include "structures.h"
 
 char *find_sfid(long sfid_indx, int *chArryPtr)
 {
@@ -114,7 +115,7 @@ char *find_sfid_char(long sfid_indx, char *chArryPtr)
       //printf("i_sfid_int: %d\n", *(i_sfid_int + r));
    }
    //printf("i_sfid_str inside: %s\n", i_sfid_str);
-   return i_sfid_str;
+   return i_sfid_str; /* Returns pointer to array. */
 }
 long find_i_dat_len(long i_dat_len_indx, char *chArryPtr)
 {
@@ -352,4 +353,43 @@ long chkSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FI
    } /* If not MSO Config. file. */
 
    return i;
+}
+iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
+{
+   long sfid_indx = 0;        /* I header SFID index. */
+   long i_dat_len_indx = 0;   /* I data length index. */
+   static iPktParms getIPktParms;
+
+   /* Grab sfid. */
+   sfid_indx = i_hdr_indx + IHDRWDTH;
+   //printf("sfid_indx: %d\n", sfid_indx);
+   /* Function returns char pointer. */
+   getIPktParms.i_sfid_ptr = find_sfid_char(sfid_indx, chArry);
+   printf("i_sfid_ptr: %c\n", *getIPktParms.i_sfid_ptr);
+   /* After finding the SFID, i should advance 4 more elements. */
+   getIPktParms.i = i + SFIDWDTH;
+   printf("i after finding sfid: %d\n", getIPktParms.i);
+   //for(r = 0; r < SFIDWDTH; r++){
+   // *(i_sfid + r) = *(i_sfid_ptr + r);
+   //printf("i_sfid: %s\n", *(i_sfid_ptr + r));
+   //}
+   //printf("i_sfid: %s\n", i_sfid);
+
+   /* Grab I data length. */
+   i_dat_len_indx = sfid_indx + SFIDWDTH;
+   //printf("i_dat_len_indx outside: %d\n", i_dat_len_indx);
+   /* I data length in integer form. */
+   getIPktParms.i_dat_len = find_i_dat_len(i_dat_len_indx, chArry);
+
+   /* After finding the I data length, i should advance 8 more elements. */
+   getIPktParms.i = i + DATFIELDWDTH;
+   printf("i after finding i data length: %d\n", getIPktParms.i);
+   printf("i_dat_len inside findIPktParms: %d\n", getIPktParms.i_dat_len);
+   //i_pkts_not_done = 0;
+
+   /* Grab I data index. */
+   getIPktParms.i_dat_indx = i_dat_len_indx + DATFIELDWDTH;
+   printf("i_dat_indx inside findIPktParms: %d\n", getIPktParms.i_dat_indx);
+
+   return getIPktParms;
 }

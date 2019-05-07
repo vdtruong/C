@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "funct_header.h"
+#include "structures.h"
 
 int main()
 {
@@ -40,7 +41,7 @@ int main()
    //int r = 0;                 /* Go through the I sfid word. */
    //char i_sfid[] = "ABCD";    /* This is a string. */
    char *i_sfid_ptr;          /* I SFID char pointer */
-   long i_dat_len_indx = 0;   /* I data length. */
+   long i_dat_len_indx = 0;   /* I data length index. */
    long i_dat_len = 0;        /* I data length. */
    long i_dat_indx = 0;       /* I data index. */
    long tot_dat_bytes = 0;    /* Total data bytes for entire file. */
@@ -50,6 +51,7 @@ int main()
                               /* After finishing one Z packet, the next character
                                  should be 'C' for the next Z packet. */
    int end_of_file = 0;       /* End of chArry. */
+   iPktParms iPktParmsRet;    /* i packet parameters return */
 
    printf("Please enter file type.\n");
    printf("spw for space wire.\n");
@@ -122,41 +124,13 @@ int main()
                }
                else{
                   /* If not first I header index, find next I header index
-                     by adding previous data starting index and previous data length. */
-                  i_hdr_indx = i_dat_indx + i_dat_len;
+                  by adding previous data starting index and previous data length. */
+                  i_hdr_indx = iPktParmsRet.i_dat_indx + iPktParmsRet.i_dat_len;
                   //printf("i_hdr_indx: %d\n", i_hdr_indx);
                }
                printf("i_hdr_indx: %d\n", i_hdr_indx);
 
-               /* Grab sfid. */
-               sfid_indx = i_hdr_indx + IHDRWDTH;
-               //printf("sfid_indx: %d\n", sfid_indx);
-               /* Function returns char pointer. */
-               i_sfid_ptr = find_sfid_char(sfid_indx, chArry);
-               /* After finding the SFID, i should advance 4 more elements. */
-               i = i + SFIDWDTH;
-               printf("i after finding sfid: %d\n", i);
-               //for(r = 0; r < SFIDWDTH; r++){
-                 // *(i_sfid + r) = *(i_sfid_ptr + r);
-                  //printf("i_sfid: %s\n", *(i_sfid_ptr + r));
-               //}
-               //printf("i_sfid: %s\n", i_sfid);
-
-               /* Grab I data length. */
-               i_dat_len_indx = sfid_indx + SFIDWDTH;
-               //printf("i_dat_len_indx outside: %d\n", i_dat_len_indx);
-               /* I data length in integer form. */
-               i_dat_len = find_i_dat_len(i_dat_len_indx, chArry);
-               /* After finding the I data length, i should advance 8 more elements. */
-               i = i + DATFIELDWDTH;
-               printf("i after finding i data length: %d\n", i);
-               printf("i_dat_len outside: %d\n", i_dat_len);
-               //i_pkts_not_done = 0;
-
-               /* Grab I data index. */
-               i_dat_indx = i_dat_len_indx + DATFIELDWDTH;
-               printf("i_dat_indx outside: %d\n", i_dat_indx);
-
+               iPktParmsRet = findIPktParms(i_hdr_indx, chArry, i);
                /* Check to see what type of file we have. */
                /* Check if we have mso56. */
                for(m = 0; m < 3; m++){
@@ -171,12 +145,14 @@ int main()
                   printf("\nFile type is MSO56.\n");
                   /* Check for the SFID type we have and return i. */
                   /* Also save data if necessary. */
-                  i = chkSfid(i_sfid_ptr, chArry, i_dat_indx, i_dat_len, confFptr, msoCh1Fptr, msoCh2Fptr, msoCh3Fptr, msoCh4Fptr, i);
+                  i = chkSfid(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
+                              iPktParmsRet.i_dat_len, confFptr, msoCh1Fptr, msoCh2Fptr,
+                              msoCh3Fptr, msoCh4Fptr, iPktParmsRet.i);
                } /* If we have Tek. mso56 scope. */
                msoMtchCnt =  0;  /* Need to reset. */
 
                /* Find out if we are done with all the I packets within one Z packet. */
-               tot_dat_bytes = tot_dat_bytes + IHDRWDTH + SFIDWDTH + DATFIELDWDTH + i_dat_len;
+               tot_dat_bytes = tot_dat_bytes + IHDRWDTH + SFIDWDTH + DATFIELDWDTH + iPktParmsRet.i_dat_len;
                printf("tot_dat_bytes: %d\n\n", tot_dat_bytes);
                if (tot_dat_bytes >= z_len_dec){
                   i_pkts_not_done = 0; /* Done with I packets. */

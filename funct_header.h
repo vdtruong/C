@@ -1,3 +1,5 @@
+#include "structures.h"
+
 #ifndef FUNCT_HEADER_H_INCLUDED
 #define FUNCT_HEADER_H_INCLUDED
 
@@ -23,4 +25,5 @@ int chkCh2Sfid(char *i_sfid_ptr);   /* Check if sfid is CH2. */
 int chkChxSfid(char *i_sfid_ptr, int ch); /* Generic check for Channel sfid. */
 long saveChxDat(char *chArry, long i_dat_indx, long i_dat_len, FILE *msoChxFptr, long i); /* Save channel 1 data and returns i. */
 long chkSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i);
+iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i);
 #endif // FUNCT_HEADER_H_INCLUDED
