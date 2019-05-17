@@ -41,7 +41,9 @@ int main()
    //char i_sfid[] = "ABCD";    /* This is a string. */
    long tot_dat_bytes = 0;    /* Total data bytes for entire file. */
    const char MSO[] = "mso";  /* Tektronix mso56 oscilloscope file type. */
+   const char SPW[] = "spw";  /* Spacewire file type. */
    int msoMtchCnt = 0;        /* Indicates file type is mso56 in counts. */
+   int spwMtchCnt = 0;        /* Indicates file type is spw in counts. */
    int fin_1_pkt = 0;         /* Indicates that we have finished 1 Z packet. */
                               /* After finishing one Z packet, the next character
                                  should be 'C' for the next Z packet. */
@@ -125,7 +127,9 @@ int main()
                }
                printf("i_hdr_indx: %d\n", i_hdr_indx);
 
+               /* Find all the I packet parameters. */
                iPktParmsRet = findIPktParms(i_hdr_indx, chArry, i);
+
                /* Check to see what type of file we have. */
                /* Check if we have mso56. */
                for(m = 0; m < 3; m++){
@@ -135,15 +139,26 @@ int main()
                }
                printf("msoMtchCnt: %d\n", msoMtchCnt);
 
+               /* Check if we have space wire. */
+               for(m = 0; m < 3; m++){
+                  if(*(fileType + m) == *(SPW + m)){
+                     spwMtchCnt =  spwMtchCnt + 1;
+                  }
+               }
+               printf("spwMtchCnt: %d\n", spwMtchCnt);
+
                /* If we have Tek. mso56 scope. */
                if(msoMtchCnt == 3){
                   printf("\nFile type is MSO56.\n");
                   /* Check for the SFID type we have and return i. */
                   /* Also save data if necessary. */
-                  i = chkSfid(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
+                  i = chkMsoSfid(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
                               iPktParmsRet.i_dat_len, confFptr, msoCh1Fptr, msoCh2Fptr,
                               msoCh3Fptr, msoCh4Fptr, iPktParmsRet.i);
                } /* If we have Tek. mso56 scope. */
+               else if(spwMtchCnt == 3){
+                  printf("\nFile type is SPW.\n");
+               }
                msoMtchCnt =  0;  /* Need to reset. */
 
                /* Find out if we are done with all the I packets within one Z packet. */

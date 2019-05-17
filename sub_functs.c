@@ -301,7 +301,7 @@ long saveChxDat(char *chArry, long i_dat_indx, long i_dat_len, FILE *msoChxFptr,
 
    return i;
 }
-long chkSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i)
+long chkMsoSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i)
 {
    /* Check for CONF sfid. */
    if(chkConfSfid(i_sfid_ptr)){
@@ -369,11 +369,6 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
    /* After finding the SFID, i should advance 4 more elements. */
    getIPktParms.i = i + SFIDWDTH;
    printf("i after finding sfid: %d\n", getIPktParms.i);
-   //for(r = 0; r < SFIDWDTH; r++){
-   // *(i_sfid + r) = *(i_sfid_ptr + r);
-   //printf("i_sfid: %s\n", *(i_sfid_ptr + r));
-   //}
-   //printf("i_sfid: %s\n", i_sfid);
 
    /* Grab I data length. */
    i_dat_len_indx = sfid_indx + SFIDWDTH;
@@ -392,4 +387,100 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
    printf("i_dat_indx inside findIPktParms: %d\n", getIPktParms.i_dat_indx);
 
    return getIPktParms;
+}
+spwData *saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i)
+{
+   int p = 0;
+   static spwData *rumhRet;
+
+   rumhRet->i = 0;
+   rumhRet->i = rumhRet->i + i;
+   /* Save RUMH data. */
+   for (p = 0; p < i_dat_len; p++){
+      *rumhRet->rumhData++ = *(chArry + i_dat_indx + p);
+      ++rumhRet->i;
+   }
+   /* After filling up the data, i should be at i + i_dat_len. */
+   printf("i after storing RUMH data: %d\n", rumhRet->i);
+
+   return rumhRet; /* Return a pointer. */
+}
+int chkRumhSfid(char *i_sfid_ptr)
+{
+   int m;
+   int rumhCnt = 0;
+
+   /* Check for RUMH sfid. */
+   for(m = 0; m < SFIDWDTH; m++){
+      printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
+      printf("RUMH: %c\n", *(RUMH + m));
+      if(*(RUMH + m) == *(i_sfid_ptr + m)){
+         rumhCnt = rumhCnt + 1;
+      }
+   }
+   if(rumhCnt == SFIDWDTH){ /* If we have space wire RUMH data. */
+      return 1;
+   }
+   else {
+      return 0;
+   }
+ }
+long chkSpwSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i)
+{
+   spwData *spwDataRet;   /* Data from SPW. */
+   char *rumhDatRet;
+
+   /* Check for RUMH sfid.
+      If it exists, save the RUMH data. */
+   if(chkRumhSfid(i_sfid_ptr)){
+      /* Save RUMH data. */
+      spwDataRet = saveRumhDat(chArry, i_dat_indx, i_dat_len, i);
+      rumhDatRet = spwDataRet->rumhData;
+
+      /* After filling up the data, i should be at i + i_dat_len. */
+      printf("i after configuration: %d\n", spwDataRet->i);
+   }
+   else{ /* If not MSO Config. data. */
+      /* Check for CH1 sfid. */
+      //if(chkCh1Sfid(i_sfid_ptr)){
+      if(chkChxSfid(i_sfid_ptr, 1)){
+         msoCh1Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch1.txt", "w");
+         /* Save data to the Ch1 file. */
+         /* After filling up the data, i should be at i + i_dat_len. */
+         i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh1Fptr, i);
+         printf("i after mso ch1: %d\n", i);
+      } /* If mso ch1 data. */
+      else{ /* If not mso ch1 data. */
+         /* Check for CH2 sfid. */
+         if(chkChxSfid(i_sfid_ptr, 2)){
+            msoCh2Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch2.txt", "w");
+            /* Save data to the Ch2 file. */
+            /* After filling up the data, i should be at i + i_dat_len. */
+            i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh2Fptr, i);
+            printf("i, after mso ch2: %d\n", i);
+         } /* If mso ch2 data. */
+         else{ /* If not mso ch2 data. */
+            /* Check for CH3 sfid. */
+            if(chkChxSfid(i_sfid_ptr, 3)){
+               msoCh3Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch3.txt", "w");
+               /* Save data to the Ch3 file. */
+               /* After filling up the data, i should be at i + i_dat_len. */
+               i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh3Fptr, i);
+               printf("i after mso ch3: %d\n", i);
+            } /* If mso ch3 data. */
+            else{ /* If not mso ch3 data. */
+               /* Check for CH4 sfid. */
+               if(chkChxSfid(i_sfid_ptr, 4)){
+                  msoCh4Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch4.txt", "w");
+                  /* Save data to the Ch4 file. */
+                  /* After filling up the data, i should be at i + i_dat_len. */
+                  i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh4Fptr, i);
+                  printf("i after mso ch4: %d\n", i);
+               } /* If mso ch4 data. */
+            } /* If not mso ch3 data. */
+         } /* If not mso ch2 data. */
+      } /* If not mso ch1 data. */
+   } /* If not MSO Config. file. */
+
+   return i;
 }

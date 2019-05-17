@@ -13,6 +13,7 @@
 #define CH2 " CH2"      /* MSO Ch2 sfid. */
 #define CH3 " CH3"      /* MSO Ch3 sfid. */
 #define CH4 " CH4"      /* MSO Ch4 sfid. */
+#define RUMH "RUMH"     /* Space wire RUMH sfid. */
 
 char *find_sfid(long sfid_indx, int *chArryPtr);            /* Find the SFID field using integer search. */
 char *find_sfid_char(long sfid_indx, char *chArryPtr);      /* Find the SFID field using character search. */
@@ -24,6 +25,11 @@ int chkCh1Sfid(char *i_sfid_ptr);   /* Check if sfid is CH1. */
 int chkCh2Sfid(char *i_sfid_ptr);   /* Check if sfid is CH2. */
 int chkChxSfid(char *i_sfid_ptr, int ch); /* Generic check for Channel sfid. */
 long saveChxDat(char *chArry, long i_dat_indx, long i_dat_len, FILE *msoChxFptr, long i); /* Save channel 1 data and returns i. */
-long chkSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i);
+/* Takes care of MSO packets. */
+long chkMsoSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i);
 iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i);
+spwData *saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i); /* Save space wire RUMH data for later use. */
+int chkRumhSfid(char *i_sfid_ptr); /* Check for space wire RUMH sfid. */
+/* Takes care of space wire packets. */
+long chkSpwSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i);
 #endif // FUNCT_HEADER_H_INCLUDED
