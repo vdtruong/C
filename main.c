@@ -23,6 +23,7 @@ int main()
    //msoCh3Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch3.txt", "w");
    FILE *msoCh4Fptr; /* For Tek Ch4 file. */
    //msoCh4Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch4.txt", "w");
+   FILE *spwFPtr; /* Space wire file pointer. */
 
    char fileType[5];          /* Indicates file type to be parsed, ie, SCD, mso, spectrum analyzer or archive. */
    long i = 0;                /* Go through the data array. */
@@ -34,6 +35,7 @@ int main()
    int zHdrIndx;              /* Holder for z header index. */
    int z_sfdu_dat_len_indx;   /* Z data length index. */
    long z_len_dec = 0;        /* z length in long decimal. */
+   long zCnt = 0;             /* Keep count of z header packets. */
    int first_i_hdr_flg = 1;   /* Indicates the first I header. */
    int i_pkts_not_done = 1;   /* Indicates if I packets are done for each Z packet. */
    long i_hdr_indx = 0;       /* I header index. */
@@ -95,6 +97,7 @@ int main()
       /* Check for the 'C' character of the Z header word. */
       if(*(chArry + i) == 'C'){
       //if(getc(fptr) == 'C')
+         zCnt = zCnt + 1;
          zHdrIndx = i; /* Fill out where we found the z header index. */
          for(j = 0; j < ZHDRWDTH; j++){
             *(zHdr + j) = *(chArry + i); /* Fill rest of z header word. */
@@ -160,6 +163,7 @@ int main()
                   printf("\nFile type is SPW.\n");
                }
                msoMtchCnt =  0;  /* Need to reset. */
+               spwMtchCnt =  0;  /* Need to reset. */
 
                /* Find out if we are done with all the I packets within one Z packet. */
                tot_dat_bytes = tot_dat_bytes + IHDRWDTH + SFIDWDTH + DATFIELDWDTH + iPktParmsRet.i_dat_len;
@@ -196,6 +200,7 @@ int main()
    fclose(msoCh2Fptr);
    fclose(msoCh3Fptr);
    fclose(msoCh4Fptr);
+   fclose(spwFPtr);
 
    return 0;
 }

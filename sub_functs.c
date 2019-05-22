@@ -391,10 +391,11 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
 spwData *saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i)
 {
    int p = 0;
-   static spwData *rumhRet;
+   static spwData *rumhDat;
 
-   rumhRet->i = 0;
-   rumhRet->i = rumhRet->i + i;
+   rumhDat->i = 0;
+   rumhDat->i = rumhRet->i + i;
+
    /* Save RUMH data. */
    for (p = 0; p < i_dat_len; p++){
       *rumhRet->rumhData++ = *(chArry + i_dat_indx + p);
@@ -424,63 +425,160 @@ int chkRumhSfid(char *i_sfid_ptr)
    else {
       return 0;
    }
- }
-long chkSpwSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i)
+}
+char *capIntrpSpwSfid(char *i_sfid_ptr)
+{
+   int m;
+   int c0efCnt = 0;
+   int c034Cnt = 0;
+   int c056Cnt = 0;
+   int c000Cnt = 0;
+   int c001Cnt = 0;
+   int c002Cnt = 0;
+   int c019Cnt = 0;
+
+   /* Check for C0ef sfid. */
+   for(m = 0; m < SFIDWDTH; m++){
+      printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
+      printf(" C0ef: %c\n", *(C0ef + m));
+      if(*(C0ef + m) == *(i_sfid_ptr + m)){
+         c0efCnt = c0efCnt + 1;
+      }
+   }
+   printf("c0efCnt: %d\n", c0efCnt);
+   if(c0efCnt == SFIDWDTH){ /* If we have C0ef sfid. */
+      return C0EFMSG;
+   }
+   else {
+      /* Check for C034 sfid. */
+      for(m = 0; m < SFIDWDTH; m++){
+         printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
+         printf(" C034: %c\n", *(C034 + m));
+         if(*(C034 + m) == *(i_sfid_ptr + m)){
+            c034Cnt = c034Cnt + 1;
+         }
+      }
+      printf("c034Cnt: %d\n", c034Cnt);
+      if(c034Cnt == SFIDWDTH){ /* If we have C034 sfid. */
+         return C034MSG;
+      }
+      else{
+         /* Check for C056 sfid. */
+         for(m = 0; m < SFIDWDTH; m++){
+            printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
+            printf(" C056: %c\n", *(C056 + m));
+            if(*(C056 + m) == *(i_sfid_ptr + m)){
+               c056Cnt = c056Cnt + 1;
+            }
+         }
+         printf("c056Cnt: %d\n", c056Cnt);
+         if(c056Cnt == SFIDWDTH){ /* If we have C056 sfid. */
+            return C056MSG;
+         }
+         else{
+            /* Check for C000 sfid. */
+            for(m = 0; m < SFIDWDTH; m++){
+               printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
+               printf(" C000: %c\n", *(C000 + m));
+               if(*(C000 + m) == *(i_sfid_ptr + m)){
+                  c000Cnt = c000Cnt + 1;
+               }
+            }
+            printf("c000Cnt: %d\n", c000Cnt);
+            if(c000Cnt == SFIDWDTH){ /* If we have C000 sfid. */
+               return C000MSG;
+            }
+            else{
+               /* Check for C001 sfid. */
+               for(m = 0; m < SFIDWDTH; m++){
+                  printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
+                  printf(" C001: %c\n", *(C001 + m));
+                  if(*(C001 + m) == *(i_sfid_ptr + m)){
+                     c001Cnt = c001Cnt + 1;
+                  }
+               }
+               printf("c001Cnt: %d\n", c001Cnt);
+               if(c001Cnt == SFIDWDTH){ /* If we have C001 sfid. */
+                  return C001MSG;
+               }
+               else{
+                  /* Check for C002 sfid. */
+                  for(m = 0; m < SFIDWDTH; m++){
+                     printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
+                     printf(" C002: %c\n", *(C002 + m));
+                     if(*(C002 + m) == *(i_sfid_ptr + m)){
+                        c002Cnt = c002Cnt + 1;
+                     }
+                  }
+                  printf("c002Cnt: %d\n", c002Cnt);
+                  if(c002Cnt == SFIDWDTH){ /* If we have C002 sfid. */
+                     return C002MSG;
+                  }
+                  else{
+                     /* Check for C019 sfid. */
+                     for(m = 0; m < SFIDWDTH; m++){
+                        printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
+                        printf(" C019: %c\n", *(C019 + m));
+                        if(*(C019 + m) == *(i_sfid_ptr + m)){
+                           c019Cnt = c019Cnt + 1;
+                        }
+                     }
+                     printf("c019Cnt: %d\n", c019Cnt);
+                     if(c019Cnt == SFIDWDTH){ /* If we have C019 sfid. */
+                        return C019MSG;
+                     }
+                     else{
+                        return UNDEFMSG;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+long chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *spwFPtr, long i, long zCnt)
 {
    spwData *spwDataRet;   /* Data from SPW. */
-   char *rumhDatRet;
+   char *rumhDatRet, *sfidMsg, *savData, *zToStr;
+   int p = 0;
 
    /* Check for RUMH sfid.
       If it exists, save the RUMH data. */
    if(chkRumhSfid(i_sfid_ptr)){
-      /* Save RUMH data. */
+      /* Store RUMH data. */
       spwDataRet = saveRumhDat(chArry, i_dat_indx, i_dat_len, i);
       rumhDatRet = spwDataRet->rumhData;
 
       /* After filling up the data, i should be at i + i_dat_len. */
-      printf("i after configuration: %d\n", spwDataRet->i);
+      printf("i after space wire sfid: %d\n", spwDataRet->i);
    }
-   else{ /* If not MSO Config. data. */
-      /* Check for CH1 sfid. */
-      //if(chkCh1Sfid(i_sfid_ptr)){
-      if(chkChxSfid(i_sfid_ptr, 1)){
-         msoCh1Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch1.txt", "w");
-         /* Save data to the Ch1 file. */
-         /* After filling up the data, i should be at i + i_dat_len. */
-         i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh1Fptr, i);
-         printf("i after mso ch1: %d\n", i);
-      } /* If mso ch1 data. */
-      else{ /* If not mso ch1 data. */
-         /* Check for CH2 sfid. */
-         if(chkChxSfid(i_sfid_ptr, 2)){
-            msoCh2Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch2.txt", "w");
-            /* Save data to the Ch2 file. */
-            /* After filling up the data, i should be at i + i_dat_len. */
-            i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh2Fptr, i);
-            printf("i, after mso ch2: %d\n", i);
-         } /* If mso ch2 data. */
-         else{ /* If not mso ch2 data. */
-            /* Check for CH3 sfid. */
-            if(chkChxSfid(i_sfid_ptr, 3)){
-               msoCh3Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch3.txt", "w");
-               /* Save data to the Ch3 file. */
-               /* After filling up the data, i should be at i + i_dat_len. */
-               i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh3Fptr, i);
-               printf("i after mso ch3: %d\n", i);
-            } /* If mso ch3 data. */
-            else{ /* If not mso ch3 data. */
-               /* Check for CH4 sfid. */
-               if(chkChxSfid(i_sfid_ptr, 4)){
-                  msoCh4Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch4.txt", "w");
-                  /* Save data to the Ch4 file. */
-                  /* After filling up the data, i should be at i + i_dat_len. */
-                  i = saveChxDat(chArry, i_dat_indx, i_dat_len, msoCh4Fptr, i);
-                  printf("i after mso ch4: %d\n", i);
-               } /* If mso ch4 data. */
-            } /* If not mso ch3 data. */
-         } /* If not mso ch2 data. */
-      } /* If not mso ch1 data. */
-   } /* If not MSO Config. file. */
+   else{ /* If not RUMH data, integrate z counter, sfid message, RUMH string, and data then save to a file. */
+      spwFPtr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/spw_file.txt", "w");
+      /* Check for space wire sfid other than RUMH. */
+      sprintf(zToStr, %d, zCnt); /* Convert zCnt to string. */
+      /* Save z string to file. */
+      for (p = 0; p < strlen(zToStr); p++){
+         /* Write to file. */
+         putc(*(zToStr + p), spwFPtr);
+      }
+      /* Concatenate with the corresponding sfid message. */
+      sfidMsg = capIntrpSpwSfid(i_sfid_ptr);
+      for (p = 0; p < strlen(sfidMsg); p++){
+         /* Write to file. */
+         putc(*(sfidMsg + p), spwFPtr);
+      }
+      /* Concatenate with the RUMH data. */
+      for (p = 0; p < strlen(rumhDatRet); p++){
+         /* Write to file. */
+         putc(*(spwDataRet->rumhData + p), spwFPtr);
+      }
+      printf("i after RUMH data: %d\n", spwDataRet->i);
 
-   return i;
+      spwDataRet->i = saveChxDat(chArry, i_dat_indx, i_dat_len, spwFPtr, spwDataRet->i);
+      printf("i after mso ch1: %d\n", spwDataRet->i);
+
+   }
+
+   return spwDataRet;
 }

@@ -13,6 +13,21 @@
 #define CH2 " CH2"      /* MSO Ch2 sfid. */
 #define CH3 " CH3"      /* MSO Ch3 sfid. */
 #define CH4 " CH4"      /* MSO Ch4 sfid. */
+#define C0EF "C0ef"     /* SPW Msg Success+(ACK) */
+#define C0EFMSG ", Msg Success+(ACK), "
+#define C034 "C034"     /* SPW AXI Read Response+ */
+#define C034MSG ", AXI Read Response+, "
+#define C056 "C056"     /* SPW Msg Failure+(NACK) */
+#define C056MSG ", Msg Failure+(NACK), "
+#define C000 "C000"     /* SPW H&S Telemetry */
+#define C000MSG ", H&S Telemetry, "
+#define C001 "C001"     /* SPW Mem Read */
+#define C001MSG ", Mem Read, "
+#define C002 "C002"     /* SPW Engineering Telemetry A */
+#define C002MSG ", Engineering Telemetry A, "
+#define C019 "C019"     /* SPW Mem Readback */
+#define C019MSG ", Mem Readback, "
+#define UNDEFMSG ", Undefined Packet Type, "
 #define RUMH "RUMH"     /* Space wire RUMH sfid. */
 
 char *find_sfid(long sfid_indx, int *chArryPtr);            /* Find the SFID field using integer search. */
@@ -28,8 +43,9 @@ long saveChxDat(char *chArry, long i_dat_indx, long i_dat_len, FILE *msoChxFptr,
 /* Takes care of MSO packets. */
 long chkMsoSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i);
 iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i);
-spwData *saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i); /* Save space wire RUMH data for later use. */
+//spwData *saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i); /* Save space wire RUMH data for later use. */
 int chkRumhSfid(char *i_sfid_ptr); /* Check for space wire RUMH sfid. */
 /* Takes care of space wire packets. */
-long chkSpwSfid(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i);
+long chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *confFptr, FILE *msoCh1Fptr, FILE *msoCh2Fptr, FILE *msoCh3Fptr, FILE *msoCh4Fptr, long i, long zCnt);
+char *capIntrpSpwSfid(char *i_sfid_ptr); /* Check space wire sfid and interpret message. */
 #endif // FUNCT_HEADER_H_INCLUDED
