@@ -3,6 +3,7 @@
 #include <string.h>
 #include "funct_header.h"
 #include "structures.h"
+#include "define.h"
 
 int main()
 {
@@ -12,7 +13,8 @@ int main()
    //	File pointer
    FILE *fptr;
    //fptr = fopen("C:/EGSE_Instrument_Control/vasa_cmd/scripts/program.txt","w");
-   fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/obsplan_1_nowait_3_2019043232904_mso56_2019043233418.dat", "r");
+   fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/obsplan_1_nowait_3_2019043232904.SCD", "r");
+   //fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/obsplan_1_nowait_3_2019043232904_mso56_2019043233418.dat", "r");
    FILE *confFptr; /* For Tek CONF file. */
    confFptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_conf.txt", "w");
    FILE *msoCh1Fptr; /* For Tek Ch1 file. */
@@ -161,6 +163,10 @@ int main()
                } /* If we have Tek. mso56 scope. */
                else if(spwMtchCnt == 3){
                   printf("\nFile type is SPW.\n");
+                  //i = chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
+                    //            iPktParmsRet.i_dat_len, spwFPtr, iPktParmsRet.i, zCnt)->i;
+                  chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
+                                iPktParmsRet.i_dat_len, spwFPtr, iPktParmsRet.i, zCnt);
                }
                msoMtchCnt =  0;  /* Need to reset. */
                spwMtchCnt =  0;  /* Need to reset. */

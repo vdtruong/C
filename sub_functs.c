@@ -3,6 +3,7 @@
 #include <string.h>
 #include "funct_header.h"
 #include "structures.h"
+#include "define.h"
 
 char *find_sfid(long sfid_indx, int *chArryPtr)
 {
@@ -110,8 +111,9 @@ char *find_sfid_char(long sfid_indx, char *chArryPtr)
 
    for(r = 0; r < SFIDWDTH; r++){
       //printf("r: %d\n", r);
+      printf("chArryPtr: %c\n", *(chArryPtr + sfid_indx + r));
       *(i_sfid_str + r) = *(chArryPtr + sfid_indx + r); /* Fill up i_sfid word. */
-      //printf("chArryPtr: %d\n", *(chArryPtr + sfid_indx + r));
+      printf("*(i_sfid_str + r) = %c\n", *(i_sfid_str + r));
       //printf("i_sfid_int: %d\n", *(i_sfid_int + r));
    }
    //printf("i_sfid_str inside: %s\n", i_sfid_str);
@@ -388,23 +390,37 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
 
    return getIPktParms;
 }
-spwData *saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i)
+char *find_rumh_data(long sfid_indx, char *chArryPtr)
+{
+   static char rumh_str[] = "7777"; /* String version. */
+   int r = 0;
+
+   for(r = 0; r < SFIDWDTH; r++){
+      printf("chArryPtr: %x\n", *(chArryPtr + sfid_indx + r));
+      *(rumh_str + r) = *(chArryPtr + sfid_indx + r); /* Fill up i_sfid word. */
+      printf("*(rumh_str + r) = %x\n", *(rumh_str + r));
+   }
+   return rumh_str; /* Returns pointer to array. */
+}
+spwData saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i)
 {
    int p = 0;
-   static spwData *rumhDat;
+   static spwData rumhDat;
 
-   rumhDat->i = 0;
-   rumhDat->i = rumhRet->i + i;
+   printf("Entering saveRumhDat.\n");
+   printf("Check for freeze.\n");
+
+   rumhDat.i = i;
+   printf("rumhDat.i: %d\n", rumhDat.i);
 
    /* Save RUMH data. */
+   rumhDat.rumhData = find_rumh_data(i_dat_indx, chArry);
    for (p = 0; p < i_dat_len; p++){
-      *rumhRet->rumhData++ = *(chArry + i_dat_indx + p);
-      ++rumhRet->i;
+      printf("rumhData: %d\n", *(rumhDat.rumhData+p));
+      rumhDat.i = rumhDat.i + 1;
    }
-   /* After filling up the data, i should be at i + i_dat_len. */
-   printf("i after storing RUMH data: %d\n", rumhRet->i);
 
-   return rumhRet; /* Return a pointer. */
+   return rumhDat; /* Return a structure. */
 }
 int chkRumhSfid(char *i_sfid_ptr)
 {
@@ -419,6 +435,8 @@ int chkRumhSfid(char *i_sfid_ptr)
          rumhCnt = rumhCnt + 1;
       }
    }
+   printf("rumhCnt = %d\n", rumhCnt);
+
    if(rumhCnt == SFIDWDTH){ /* If we have space wire RUMH data. */
       return 1;
    }
@@ -440,8 +458,8 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
    /* Check for C0ef sfid. */
    for(m = 0; m < SFIDWDTH; m++){
       printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
-      printf(" C0ef: %c\n", *(C0ef + m));
-      if(*(C0ef + m) == *(i_sfid_ptr + m)){
+      printf(" C0ef: %c\n", *(C0EF + m));
+      if(*(C0EF + m) == *(i_sfid_ptr + m)){
          c0efCnt = c0efCnt + 1;
       }
    }
@@ -537,9 +555,11 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
       }
    }
 }
-long chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *spwFPtr, long i, long zCnt)
+spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *spwFPtr, long i, long zCnt)
 {
-   spwData *spwDataRet;   /* Data from SPW. */
+   static spwData spwDataRet;   /* Data from SPW. */
+   //spwData spwDataRet;
+
    char *rumhDatRet, *sfidMsg, *savData, *zToStr;
    int p = 0;
 
@@ -548,16 +568,24 @@ long chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, 
    if(chkRumhSfid(i_sfid_ptr)){
       /* Store RUMH data. */
       spwDataRet = saveRumhDat(chArry, i_dat_indx, i_dat_len, i);
-      rumhDatRet = spwDataRet->rumhData;
+      for(p = 0; p < SFIDWDTH; p++){
+         *(rumhDatRet + p) = *(spwDataRet.rumhData + p);
+         //printf("*(rumhDatRet + p): %d\n", *(rumhDatRet + p));
+      }
+      for(p = 0; p < SFIDWDTH; p++){
+         printf("*(spwDatRet.rumhData + p): %d\n", *(spwDataRet.rumhData + p));
+      }
 
       /* After filling up the data, i should be at i + i_dat_len. */
-      printf("i after space wire sfid: %d\n", spwDataRet->i);
+      //printf("i after space wire sfid: %d\n", spwDataRet->i);
    }
    else{ /* If not RUMH data, integrate z counter, sfid message, RUMH string, and data then save to a file. */
       spwFPtr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/spw_file.txt", "w");
       /* Check for space wire sfid other than RUMH. */
-      sprintf(zToStr, %d, zCnt); /* Convert zCnt to string. */
+      printf("zCnt: %d\n", zCnt);
+      sprintf(zToStr, "%d", zCnt); /* Convert zCnt to string. */
       /* Save z string to file. */
+      spwFPtr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/spw_file.txt", "a");
       for (p = 0; p < strlen(zToStr); p++){
          /* Write to file. */
          putc(*(zToStr + p), spwFPtr);
@@ -571,12 +599,12 @@ long chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, 
       /* Concatenate with the RUMH data. */
       for (p = 0; p < strlen(rumhDatRet); p++){
          /* Write to file. */
-         putc(*(spwDataRet->rumhData + p), spwFPtr);
+         putc(*(spwDataRet.rumhData + p), spwFPtr);
       }
-      printf("i after RUMH data: %d\n", spwDataRet->i);
+      printf("i after RUMH data: %d\n", spwDataRet.i);
 
-      spwDataRet->i = saveChxDat(chArry, i_dat_indx, i_dat_len, spwFPtr, spwDataRet->i);
-      printf("i after mso ch1: %d\n", spwDataRet->i);
+      spwDataRet.i = saveChxDat(chArry, i_dat_indx, i_dat_len, spwFPtr, spwDataRet.i);
+      printf("i after mso ch1: %d\n", spwDataRet.i);
 
    }
 
