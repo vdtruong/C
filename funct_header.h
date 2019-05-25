@@ -21,7 +21,7 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i);
 char *find_rumh_data(long sfid_indx, char *chArryPtr); /* Find RUMH data. */
 int chkRumhSfid(char *i_sfid_ptr); /* Check for space wire RUMH sfid. */
 sfidIntrpMsg capIntrpSpwSfid(char *i_sfid_ptr); /* Check space wire sfid and interpret message. */
-spwData saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i); /* Save RUMH Data. */
+spwData captRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i); /* Save RUMH Data. */
 /* Takes care of space wire packets. */
 spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_len, FILE *spwFptr, long i, long zCnt);
 
