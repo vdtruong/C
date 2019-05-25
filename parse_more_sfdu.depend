@@ -1,0 +1,38 @@
+# depslib dependency file v1.0
+1556915612 source:c:\users\vdtruong\documents\github\egse_instrument_control\vasa_processing\c\sfdu\more_sfdu_parse\parse_more_sfdu\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"funct_header.h"
+
+1556913719 c:\users\vdtruong\documents\github\egse_instrument_control\vasa_processing\c\sfdu\more_sfdu_parse\parse_more_sfdu\funct_header.h
+
+1556852960 source:c:\users\vdtruong\documents\github\egse_instrument_control\vasa_processing\c\sfdu\more_sfdu_parse\parse_more_sfdu\sub_functs.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"funct_header.h"
+
+1558665985 source:c:\users\vdtruong\documents\github\egse_instrument_control\vasa_processing\c\sfdu\more_sfdu_parse\parse_more_sfdu\c\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"funct_header.h"
+	"structures.h"
+	"define.h"
+
+1558741377 c:\users\vdtruong\documents\github\egse_instrument_control\vasa_processing\c\sfdu\more_sfdu_parse\parse_more_sfdu\c\funct_header.h
+	"structures.h"
+
+1558643594 source:c:\users\vdtruong\documents\github\egse_instrument_control\vasa_processing\c\sfdu\more_sfdu_parse\parse_more_sfdu\c\sub_functs.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"funct_header.h"
+	"structures.h"
+	"define.h"
+
+1558740709 c:\users\vdtruong\documents\github\egse_instrument_control\vasa_processing\c\sfdu\more_sfdu_parse\parse_more_sfdu\c\structures.h
+
+1558555328 c:\users\vdtruong\documents\github\egse_instrument_control\vasa_processing\c\sfdu\more_sfdu_parse\parse_more_sfdu\c\define.h
+

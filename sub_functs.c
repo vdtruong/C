@@ -362,6 +362,8 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
    long i_dat_len_indx = 0;   /* I data length index. */
    static iPktParms getIPktParms;
 
+   printf("Entering findIPktParms.\n");
+
    /* Grab sfid. */
    sfid_indx = i_hdr_indx + IHDRWDTH;
    //printf("sfid_indx: %d\n", sfid_indx);
@@ -395,6 +397,8 @@ char *find_rumh_data(long sfid_indx, char *chArryPtr)
    static char rumh_str[] = "7777"; /* String version. */
    int r = 0;
 
+   printf("Entering find_rumh_data.\n");
+
    for(r = 0; r < SFIDWDTH; r++){
       printf("chArryPtr: %x\n", *(chArryPtr + sfid_indx + r));
       *(rumh_str + r) = *(chArryPtr + sfid_indx + r); /* Fill up i_sfid word. */
@@ -408,7 +412,7 @@ spwData saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i)
    static spwData rumhDat;
 
    printf("Entering saveRumhDat.\n");
-   printf("Check for freeze.\n");
+   //printf("Check for freeze.\n");
 
    rumhDat.i = i;
    printf("rumhDat.i: %d\n", rumhDat.i);
@@ -427,6 +431,8 @@ int chkRumhSfid(char *i_sfid_ptr)
    int m;
    int rumhCnt = 0;
 
+   printf("Entering chkRumhSfid.\n");
+
    /* Check for RUMH sfid. */
    for(m = 0; m < SFIDWDTH; m++){
       printf("i_sfid_ptr: %c\n", *(i_sfid_ptr + m));
@@ -444,7 +450,7 @@ int chkRumhSfid(char *i_sfid_ptr)
       return 0;
    }
 }
-char *capIntrpSpwSfid(char *i_sfid_ptr)
+sfidIntrpMsg capIntrpSpwSfid(char *i_sfid_ptr)
 {
    int m;
    int c0efCnt = 0;
@@ -454,6 +460,10 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
    int c001Cnt = 0;
    int c002Cnt = 0;
    int c019Cnt = 0;
+   static sfidIntrpMsg c0efRetMsg, c034RetMsg, c056RetMsg, c000RetMsg,
+                  c001RetMsg, c002RetMsg, c019RetMsg, undefMsg;
+
+   printf("Entering capIntrpSpwSfid.\n");
 
    /* Check for C0ef sfid. */
    for(m = 0; m < SFIDWDTH; m++){
@@ -465,7 +475,9 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
    }
    printf("c0efCnt: %d\n", c0efCnt);
    if(c0efCnt == SFIDWDTH){ /* If we have C0ef sfid. */
-      return C0EFMSG;
+      c0efRetMsg.retMsg = C0EFMSG;
+      c0efRetMsg.msgLngth = strlen(C0EFMSG);
+      return c0efRetMsg;
    }
    else {
       /* Check for C034 sfid. */
@@ -478,7 +490,9 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
       }
       printf("c034Cnt: %d\n", c034Cnt);
       if(c034Cnt == SFIDWDTH){ /* If we have C034 sfid. */
-         return C034MSG;
+         c034RetMsg.retMsg = C034MSG;
+         c034RetMsg.msgLngth = strlen(C034MSG);
+         return c034RetMsg;
       }
       else{
          /* Check for C056 sfid. */
@@ -491,7 +505,9 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
          }
          printf("c056Cnt: %d\n", c056Cnt);
          if(c056Cnt == SFIDWDTH){ /* If we have C056 sfid. */
-            return C056MSG;
+            c056RetMsg.retMsg = C056MSG;
+            c056RetMsg.msgLngth = strlen(C056MSG);
+            return c056RetMsg;
          }
          else{
             /* Check for C000 sfid. */
@@ -504,7 +520,9 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
             }
             printf("c000Cnt: %d\n", c000Cnt);
             if(c000Cnt == SFIDWDTH){ /* If we have C000 sfid. */
-               return C000MSG;
+               c000RetMsg.retMsg = C000MSG;
+               c000RetMsg.msgLngth = strlen(C000MSG);
+               return c000RetMsg;
             }
             else{
                /* Check for C001 sfid. */
@@ -517,7 +535,9 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
                }
                printf("c001Cnt: %d\n", c001Cnt);
                if(c001Cnt == SFIDWDTH){ /* If we have C001 sfid. */
-                  return C001MSG;
+                  c001RetMsg.retMsg = C001MSG;
+                  c001RetMsg.msgLngth = strlen(C001MSG);
+                  return c001RetMsg;
                }
                else{
                   /* Check for C002 sfid. */
@@ -530,7 +550,9 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
                   }
                   printf("c002Cnt: %d\n", c002Cnt);
                   if(c002Cnt == SFIDWDTH){ /* If we have C002 sfid. */
-                     return C002MSG;
+                     c002RetMsg.retMsg = C002MSG;
+                     c002RetMsg.msgLngth = strlen(C002MSG);
+                     return c002RetMsg;
                   }
                   else{
                      /* Check for C019 sfid. */
@@ -543,10 +565,14 @@ char *capIntrpSpwSfid(char *i_sfid_ptr)
                      }
                      printf("c019Cnt: %d\n", c019Cnt);
                      if(c019Cnt == SFIDWDTH){ /* If we have C019 sfid. */
-                        return C019MSG;
+                        c019RetMsg.retMsg = C019MSG;
+                        c019RetMsg.msgLngth = strlen(C019MSG);
+                        return c019RetMsg;;
                      }
                      else{
-                        return UNDEFMSG;
+                        undefMsg.retMsg = UNDEFMSG;
+                        undefMsg.msgLngth = strlen(UNDEFMSG);
+                        return undefMsg;
                      }
                   }
                }
@@ -560,7 +586,10 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
    static spwData spwDataRet;   /* Data from SPW. */
    //spwData spwDataRet;
 
-   char *rumhDatRet, *sfidMsg, *savData, *zToStr;
+   printf("Entering chkSpwDat.\n");
+
+   char *rumhDatRet, *savData, *zToStr[10];
+   sfidIntrpMsg sfidMsg;
    int p = 0;
 
    /* Check for RUMH sfid.
@@ -568,40 +597,52 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
    if(chkRumhSfid(i_sfid_ptr)){
       /* Store RUMH data. */
       spwDataRet = saveRumhDat(chArry, i_dat_indx, i_dat_len, i);
-      for(p = 0; p < SFIDWDTH; p++){
-         *(rumhDatRet + p) = *(spwDataRet.rumhData + p);
+      //for(p = 0; p < SFIDWDTH; p++){
+        // *(rumhDatRet + p) = *(spwDataRet.rumhData + p);
          //printf("*(rumhDatRet + p): %d\n", *(rumhDatRet + p));
-      }
+      //}
       for(p = 0; p < SFIDWDTH; p++){
          printf("*(spwDatRet.rumhData + p): %d\n", *(spwDataRet.rumhData + p));
       }
 
       /* After filling up the data, i should be at i + i_dat_len. */
       //printf("i after space wire sfid: %d\n", spwDataRet->i);
+      //return spwDataRet;
    }
-   else{ /* If not RUMH data, integrate z counter, sfid message, RUMH string, and data then save to a file. */
+   else{
+      /* If not RUMH data, integrate z counter, sfid message,
+         RUMH string, and data then save to a file. */
       spwFPtr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/spw_file.txt", "w");
-      /* Check for space wire sfid other than RUMH. */
+
       printf("zCnt: %d\n", zCnt);
       sprintf(zToStr, "%d", zCnt); /* Convert zCnt to string. */
-      /* Save z string to file. */
+      printf("zToStr: %s\n", zToStr);
+      fclose(spwFPtr);
+
+      /* Save z string (pseudo time stamp) to file. */
       spwFPtr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/spw_file.txt", "a");
       for (p = 0; p < strlen(zToStr); p++){
          /* Write to file. */
          putc(*(zToStr + p), spwFPtr);
       }
+
       /* Concatenate with the corresponding sfid message. */
       sfidMsg = capIntrpSpwSfid(i_sfid_ptr);
-      for (p = 0; p < strlen(sfidMsg); p++){
-         /* Write to file. */
-         putc(*(sfidMsg + p), spwFPtr);
+      for (p = 0; p < sfidMsg.msgLngth; p++){
+         /* Check the message. */
+         printf("sfidMsg: %c\n", *(sfidMsg.retMsg + p));
       }
+      for (p = 0; p < sfidMsg.msgLngth; p++){
+         /* Write to file. */
+         putc(*(sfidMsg.retMsg + p), spwFPtr);
+      }
+
       /* Concatenate with the RUMH data. */
-      for (p = 0; p < strlen(rumhDatRet); p++){
+      for (p = 0; p < SFIDWDTH; p++){
          /* Write to file. */
          putc(*(spwDataRet.rumhData + p), spwFPtr);
       }
-      printf("i after RUMH data: %d\n", spwDataRet.i);
+      //printf("i after RUMH data: %d\n", spwDataRet.i);
 
       spwDataRet.i = saveChxDat(chArry, i_dat_indx, i_dat_len, spwFPtr, spwDataRet.i);
       printf("i after mso ch1: %d\n", spwDataRet.i);
