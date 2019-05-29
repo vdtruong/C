@@ -1,7 +1,7 @@
 #ifndef DEFINE_H_INCLUDED
 #define DEFINE_H_INCLUDED
 
-#define TOTCHRS 800000  /* This is the number of characters we want from the data file. Varies, change to accommodate. */
+#define TOTCHRS 800000  /* This is the number of characters we want from the data file. */
 #define ZHDRWDTH 12     /* Z header word width. */
 #define DATFIELDWDTH 8  /* Data field width. */
 #define IHDRWDTH 8      /* I header width. */

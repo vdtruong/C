@@ -27,9 +27,6 @@ int main()
    //msoCh4Fptr = fopen("C:/Users/vdtruong/Desktop/Europa/REASON/Goddard/obsplan_1_nowait_3_2019043232904/pass/mso_ch4.txt", "w");
    FILE *spwFPtr; /* Space wire file pointer. */
 
-   int c_flg_fnd = 0;         /* Indicates the 'C' character of the Z header word is found. */
-   char pik_c_char = 'a';     /* Pick a character from the character array. */
-   int zHdrArryCntr = 0;      /* Counts if the Z header array if filled up. */
    char fileType[5];          /* Indicates file type to be parsed, ie, SCD, mso, spectrum analyzer or archive. */
    long i = 0;                /* Go through the data array. */
    int j = 0;                 /* Go through the z header word. */
@@ -99,118 +96,6 @@ int main()
 
    i = 0;
    while(!end_of_file){
-      pik_c_char = *(chArry + i); /* Pick the next character from the characters array. */
-      if(c_flg_fnd){ /* If found 'C' from Z packet already. */
-         zHdrArryCntr = zHdrArryCntr + 1; /* Z header array counts should be 11, starting at 0. */
-         *(zHdr + j) = pik_c_char;
-         if(zHdrArryCntr == 11){ /* Check if Z header array is filled up. */
-            c_flg_fnd = 0; /* Clear the flag. */
-            ++i; /* Increment i in chArry. */
-            /* Check to see if we have the Z header word. */
-            if(chkZhdrMtch(zHdr)){ /* If Z header is matched. */
-               z_sfdu_dat_len_indx = zHdrIndx + ZHDRWDTH;
-               z_len_dec = atol(findZlenStr(chArry, z_sfdu_dat_len_indx));
-               printf("z_len_dec: %d\n", z_len_dec);
-               /* After finding the I data length, i should advance 8 more elements. */
-               i = i + DATFIELDWDTH;
-               printf("i after finding z length: %d\n\n", i);
-
-               /* If we are not done with the I packets for each Z packet,
-                  keep going through other I packets. */
-               while(i_pkts_not_done){
-                  /* Grab I header index. */
-                  if(first_i_hdr_flg){
-                     i_hdr_indx = zHdrIndx + ZHDRWDTH + DATFIELDWDTH;
-                     //printf("1st i_hdr_indx: %d\n", i_hdr_indx);
-                     first_i_hdr_flg = 0; /* Reset */
-                  }
-                  else{
-                     /* If not first I header index, find next I header index
-                     by adding previous data starting index and previous data length. */
-                     i_hdr_indx = iPktParmsRet.i_dat_indx + iPktParmsRet.i_dat_len;
-                     //printf("i_hdr_indx: %d\n", i_hdr_indx);
-                  }
-                  printf("i_hdr_indx: %d\n", i_hdr_indx);
-
-                  /* Find all the I packet parameters. */
-                  iPktParmsRet = findIPktParms(i_hdr_indx, chArry, i);
-
-                  /* Check to see what type of file we have. */
-                  /* Check if we have mso56. */
-                  for(m = 0; m < 3; m++){
-                     if(*(fileType + m) == *(MSO + m)){
-                        msoMtchCnt =  msoMtchCnt + 1;
-                     }
-                  }
-                  printf("msoMtchCnt: %d\n", msoMtchCnt);
-
-                  /* Check if we have space wire. */
-                  for(m = 0; m < 3; m++){
-                     if(*(fileType + m) == *(SPW + m)){
-                        spwMtchCnt =  spwMtchCnt + 1;
-                     }
-                  }
-                  printf("spwMtchCnt: %d\n", spwMtchCnt);
-
-                  /* If we have Tek. mso56 scope. */
-                  if(msoMtchCnt == 3){
-                     printf("\nFile type is MSO56.\n");
-                     /* Check for the SFID type we have and return i. */
-                     /* Also save data if necessary. */
-                     i = chkMsoSfid(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
-                              iPktParmsRet.i_dat_len, confFptr, msoCh1Fptr, msoCh2Fptr,
-                              msoCh3Fptr, msoCh4Fptr, iPktParmsRet.i);
-                  } /* If we have Tek. mso56 scope. */
-                  else if(spwMtchCnt == 3){
-                     printf("\nFile type is SPW.\n");
-                     //i = chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
-                     //            iPktParmsRet.i_dat_len, spwFPtr, iPktParmsRet.i, zCnt)->i;
-                     chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
-                                iPktParmsRet.i_dat_len, spwFPtr, iPktParmsRet.i, zCnt);
-                  }
-                  msoMtchCnt =  0;     /* Need to reset. */
-                  spwMtchCnt =  0;     /* Need to reset. */
-                  iPktParmsRet.i = 0;  /* Reset after going through the I packet. */
-
-                  /* Find out if we are done with all the I packets within one Z packet. */
-                  tot_dat_bytes = tot_dat_bytes + IHDRWDTH + SFIDWDTH + DATFIELDWDTH + iPktParmsRet.i_dat_len;
-                  printf("tot_dat_bytes: %d\n\n", tot_dat_bytes);
-                  if (tot_dat_bytes >= z_len_dec){
-                     i_pkts_not_done = 0; /* Done with I packets. */
-                     printf("i_pkts_not_done: %d\n", i_pkts_not_done);
-                     fin_1_pkt = 1; /* Indicates that we have finished 1 Z packet. */
-                  }
-               } /* while i packets are not done. */
-            } /* If Z header is matched. */
-            else{ /* If we don't have the Z header match. */
-               ++i;
-               printf("i: %d\n", i);
-            }
-         } /* Check if Z header array is filled up. */
-         else{
-            ++i; /* Increment i in chArry. */
-         }
-      }/* If found 'C' from Z packet already. */
-   //} /* Not end of file. */
-      else{ /* Hasn't found the 'C' character from the Z packet yet. */
-         if(pik_c_char == 'C'){ /* Just found 'C'. */
-            zHdrArryCntr = zHdrArryCntr + 1;
-            *(zHdr + j) = pik_c_char;
-            c_flg_fnd = 1; /* Just found 'C'. */
-            ++i; /* Increment i in chArry. */
-         }
-         else{ /* Still hasn't found 'C' yet. */
-            ++i; /* Increment i in chArry. */
-         }
-      }
-
-      if(i >= TOTCHRS){
-         end_of_file = 1; /* If i has reach end of characters array. */
-      }
-   } /* while(!end_of_file) */
-
-
-
       /* Check for the 'C' character of the Z header word. */
       if(*(chArry + i) == 'C'){
       //if(getc(fptr) == 'C')
@@ -283,9 +168,8 @@ int main()
                   chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
                                 iPktParmsRet.i_dat_len, spwFPtr, iPktParmsRet.i, zCnt);
                }
-               msoMtchCnt =  0;     /* Need to reset. */
-               spwMtchCnt =  0;     /* Need to reset. */
-               iPktParmsRet.i = 0;  /* Reset after going through the I packet. */
+               msoMtchCnt =  0;  /* Need to reset. */
+               spwMtchCnt =  0;  /* Need to reset. */
 
                /* Find out if we are done with all the I packets within one Z packet. */
                tot_dat_bytes = tot_dat_bytes + IHDRWDTH + SFIDWDTH + DATFIELDWDTH + iPktParmsRet.i_dat_len;

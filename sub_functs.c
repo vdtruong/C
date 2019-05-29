@@ -406,7 +406,7 @@ char *find_rumh_data(long sfid_indx, char *chArryPtr)
    }
    return rumh_str; /* Returns pointer to array. */
 }
-spwData captRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i)
+spwData saveRumhDat(char *chArry, long i_dat_indx, long i_dat_len, long i)
 {
    int p = 0;
    static spwData rumhDat;
@@ -596,7 +596,7 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
       If it exists, save the RUMH data. */
    if(chkRumhSfid(i_sfid_ptr)){
       /* Store RUMH data. */
-      spwDataRet = captRumhDat(chArry, i_dat_indx, i_dat_len, i);
+      spwDataRet = saveRumhDat(chArry, i_dat_indx, i_dat_len, i);
       //for(p = 0; p < SFIDWDTH; p++){
         // *(rumhDatRet + p) = *(spwDataRet.rumhData + p);
          //printf("*(rumhDatRet + p): %d\n", *(rumhDatRet + p));
@@ -605,8 +605,8 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
          printf("*(spwDatRet.rumhData + p): %d\n", *(spwDataRet.rumhData + p));
       }
 
-      /* After capturing the RUMH data, i should be: */
-      printf("i after capturing RUMH data: %d\n", spwDataRet.i);
+      /* After filling up the data, i should be at i + i_dat_len. */
+      //printf("i after space wire sfid: %d\n", spwDataRet->i);
       //return spwDataRet;
    }
    else{
