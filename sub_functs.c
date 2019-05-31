@@ -292,6 +292,10 @@ long saveChxDat(char *chArry, long i_dat_indx, long i_dat_len, FILE *msoChxFptr,
          break;
    }*/
 
+   printf("i entering saveChxDat: %d\n", i);
+   printf("i_dat_len: %d\n", i_dat_len);
+   i = i_dat_indx; /* i should be i_dat_indx to start collecting data. */
+
    /* Save data to the Chx file. */
    for (p = 0; p < i_dat_len; p++){
       /* Write to file. */
@@ -299,7 +303,7 @@ long saveChxDat(char *chArry, long i_dat_indx, long i_dat_len, FILE *msoChxFptr,
       ++i;
    }
    /* After filling up the data, i should be at i + i_dat_len. */
-   printf("i after mso chx: %d\n", i);
+   printf("i leaving saveChxDat(): %d\n", i);
 
    return i;
 }
@@ -363,6 +367,7 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
    static iPktParms getIPktParms;
 
    printf("Entering findIPktParms.\n");
+   printf("i entering findIPktParms: %d\n", i);
 
    /* Grab sfid. */
    sfid_indx = i_hdr_indx + IHDRWDTH;
@@ -370,8 +375,8 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
    /* Function returns char pointer. */
    getIPktParms.i_sfid_ptr = find_sfid_char(sfid_indx, chArry);
    printf("i_sfid_ptr: %c\n", *getIPktParms.i_sfid_ptr);
-   /* After finding the SFID, i should advance 4 more elements. */
-   getIPktParms.i = i + SFIDWDTH;
+   /* After finding the SFID, i should advance 12 more elements. */
+   getIPktParms.i = i + IHDRWDTH + SFIDWDTH;
    printf("i after finding sfid: %d\n", getIPktParms.i);
 
    /* Grab I data length. */
@@ -381,7 +386,7 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
    getIPktParms.i_dat_len = find_i_dat_len(i_dat_len_indx, chArry);
 
    /* After finding the I data length, i should advance 8 more elements. */
-   getIPktParms.i = i + DATFIELDWDTH;
+   getIPktParms.i = getIPktParms.i + DATFIELDWDTH;
    printf("i after finding i data length: %d\n", getIPktParms.i);
    printf("i_dat_len inside findIPktParms: %d\n", getIPktParms.i_dat_len);
    //i_pkts_not_done = 0;
@@ -389,6 +394,8 @@ iPktParms findIPktParms(long i_hdr_indx, char *chArry, long i)
    /* Grab I data index. */
    getIPktParms.i_dat_indx = i_dat_len_indx + DATFIELDWDTH;
    printf("i_dat_indx inside findIPktParms: %d\n", getIPktParms.i_dat_indx);
+
+   printf("Exiting findIPktParms.\n");
 
    return getIPktParms;
 }
@@ -588,7 +595,7 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
 
    printf("Entering chkSpwDat.\n");
 
-   char *rumhDatRet, *savData, *zToStr[10];
+   char *rumhDatRet, *savData, *zToStr[5];
    sfidIntrpMsg sfidMsg;
    int p = 0;
 
@@ -616,7 +623,11 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
 
       printf("zCnt: %d\n", zCnt);
       sprintf(zToStr, "%d", zCnt); /* Convert zCnt to string. */
+      for (p = 0; p < 1; p++){
+         printf("*(zToStr + p): %c\n", *(zToStr + p));
+      }
       printf("zToStr: %s\n", zToStr);
+      printf("strlen(zToStr): %d\n", strlen(zToStr));
       fclose(spwFPtr);
 
       /* Save z string (pseudo time stamp) to file. */
@@ -624,6 +635,7 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
       for (p = 0; p < strlen(zToStr); p++){
          /* Write to file. */
          putc(*(zToStr + p), spwFPtr);
+         printf("*(zToStr + p): %c\n", *(zToStr + p));
       }
 
       /* Concatenate with the corresponding sfid message. */
@@ -645,7 +657,8 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
       //printf("i after RUMH data: %d\n", spwDataRet.i);
 
       spwDataRet.i = saveChxDat(chArry, i_dat_indx, i_dat_len, spwFPtr, spwDataRet.i);
-      printf("i after mso ch1: %d\n", spwDataRet.i);
+      printf("i after exiting saveChxDat(): %d\n", spwDataRet.i);
+      putc('\r', spwFPtr);
 
    }
 

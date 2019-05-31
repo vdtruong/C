@@ -48,17 +48,18 @@ int main()
    const char SPW[] = "spw";  /* Spacewire file type. */
    int msoMtchCnt = 0;        /* Indicates file type is mso56 in counts. */
    int spwMtchCnt = 0;        /* Indicates file type is spw in counts. */
-   int fin_1_pkt = 0;         /* Indicates that we have finished 1 Z packet. */
+   int fin_1_z_pkt = 0;         /* Indicates that we have finished 1 Z packet. */
                               /* After finishing one Z packet, the next character
                                  should be 'C' for the next Z packet. */
    int end_of_file = 0;       /* End of chArry. */
    iPktParms iPktParmsRet;    /* i packet parameters return */
+   spwData chkISpwDat;        /* I space wire packet data for each Z packet. */
 
    printf("Please enter file type.\n");
-   printf("spw for space wire.\n");
-   printf("speca for spectrum analyzer.\n");
-   printf("mso for Tektronix MSO56 oscilloscope.\n");
-   printf("arc for Archived.\n");
+   printf("1. spw for space wire.\n");
+   printf("2. speca for spectrum analyzer.\n");
+   printf("3. mso for Tektronix MSO56 oscilloscope.\n");
+   printf("4. arc for Archived.\n");
    printf("Please enter file type: ");
    scanf("%s", fileType);
    printf("\nFile type is: %s\n", fileType);
@@ -100,6 +101,7 @@ int main()
       if(*(chArry + i) == 'C'){
       //if(getc(fptr) == 'C')
          zCnt = zCnt + 1;
+         printf("zCnt: %d\n", zCnt);
          zHdrIndx = i; /* Fill out where we found the z header index. */
          for(j = 0; j < ZHDRWDTH; j++){
             *(zHdr + j) = *(chArry + i); /* Fill rest of z header word. */
@@ -121,16 +123,16 @@ int main()
                /* Grab I header index. */
                if(first_i_hdr_flg){
                   i_hdr_indx = zHdrIndx + ZHDRWDTH + DATFIELDWDTH;
-                  //printf("1st i_hdr_indx: %d\n", i_hdr_indx);
+                  printf("1st i_hdr_indx: %d\n", i_hdr_indx);
                   first_i_hdr_flg = 0; /* Reset */
                }
                else{
                   /* If not first I header index, find next I header index
                   by adding previous data starting index and previous data length. */
                   i_hdr_indx = iPktParmsRet.i_dat_indx + iPktParmsRet.i_dat_len;
-                  //printf("i_hdr_indx: %d\n", i_hdr_indx);
+                  printf("Consecutive i_hdr_indx: %d\n", i_hdr_indx);
                }
-               printf("i_hdr_indx: %d\n", i_hdr_indx);
+               //printf("i_hdr_indx: %d\n", i_hdr_indx);
 
                /* Find all the I packet parameters. */
                iPktParmsRet = findIPktParms(i_hdr_indx, chArry, i);
@@ -165,9 +167,11 @@ int main()
                   printf("\nFile type is SPW.\n");
                   //i = chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
                     //            iPktParmsRet.i_dat_len, spwFPtr, iPktParmsRet.i, zCnt)->i;
-                  chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
+                  chkISpwDat = chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
                                 iPktParmsRet.i_dat_len, spwFPtr, iPktParmsRet.i, zCnt);
+                  printf("i after exiting chkSpwDat(): %d\n", chkISpwDat.i);
                }
+               i = chkISpwDat.i; /* Need this i for the next I packet. */
                msoMtchCnt =  0;  /* Need to reset. */
                spwMtchCnt =  0;  /* Need to reset. */
 
@@ -177,23 +181,32 @@ int main()
                if (tot_dat_bytes >= z_len_dec){
                   i_pkts_not_done = 0; /* Done with I packets. */
                   printf("i_pkts_not_done: %d\n", i_pkts_not_done);
-                  fin_1_pkt = 1; /* Indicates that we have finished 1 Z packet. */
+                  fin_1_z_pkt = 1; /* Indicates that we have finished 1 Z packet. */
                }
             } /* while i packets are not done. */
-         } // if(zHdrMtchCnt == ZHDRWDTH){ /* If Z header is matched. */
+            //i = chkISpwDat.i;
+            printf("i for the next Z packet: %d\n", i);
+            printf("chArry at i: %c\n", *(chArry + i));
+            i_pkts_not_done = 1; /* Need to reset for the next possible Z packet. */
+            first_i_hdr_flg = 1; /* Need to reset for the next possible Z packet. */
+            tot_dat_bytes = 0;   /* Need to reset for the next possible Z packet. */
+         } /* If Z header is matched. */
          else{ /* If we don't have the Z header match. */
+            printf("Z header does not match.\n");
             ++i;
             printf("i: %d\n", i);
          }
       } /* If character 'C' is found. */
       else{ /* If character 'C' is not found. */
          /* If we have done one Z packet and the next character is not 'C' then exit. */
-         if(fin_1_pkt){
+         if(fin_1_z_pkt){
             end_of_file = 1; /* Exit */
+            printf("Done with Z packet but next character is not 'C'.\n");
          }
          else{
             /* If 'C' is not found and we haven't finished any Z packet,
                move to the next element. */
+            printf("Not found 'C' but have not found any Z packet yet.\n");
             ++i;
             printf("i: %d\n", i);
          }
