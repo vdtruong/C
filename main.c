@@ -165,6 +165,7 @@ int main()
                } /* If we have Tek. mso56 scope. */
                else if(spwMtchCnt == 3){
                   printf("\nFile type is SPW.\n");
+                  printf("iPktParmsRet.i_dat_len: %d\n", iPktParmsRet.i_dat_len);
                   //i = chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
                     //            iPktParmsRet.i_dat_len, spwFPtr, iPktParmsRet.i, zCnt)->i;
                   chkISpwDat = chkSpwDat(iPktParmsRet.i_sfid_ptr, chArry, iPktParmsRet.i_dat_indx,
