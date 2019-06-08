@@ -595,7 +595,7 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
 
    printf("Entering chkSpwDat.\n");
 
-   char *rumhDatRet, *savData, *zToStr[5];
+   char *rumhDatRet, *savData, zToStr[5];
    sfidIntrpMsg sfidMsg;
    int p = 0;
 
@@ -623,7 +623,7 @@ spwData chkSpwDat(char *i_sfid_ptr, char *chArry, long i_dat_indx, long i_dat_le
 
       printf("zCnt: %d\n", zCnt);
       sprintf(zToStr, "%d", zCnt); /* Convert zCnt to string. */
-      for (p = 0; p < 1; p++){
+      for (p = 0; p < 2; p++){
          printf("*(zToStr + p): %c\n", *(zToStr + p));
       }
       printf("zToStr: %s\n", zToStr);
